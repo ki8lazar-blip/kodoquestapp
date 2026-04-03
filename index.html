@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KodoQuest 🚀</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0c1d;
+  --surface: #1c1830;
+  --surface2: #252040;
+  --surface3: #2e2850;
+  --accent: #ffd166;
+  --green: #06d6a0;
+  --red: #ef476f;
+  --blue: #4cc9f0;
+  --purple: #b388ff;
+  --text: #f0eaff;
+  --text-dim: #8878aa;
+  --radius: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  background-image: radial-gradient(ellipse at 20% 20%, #1a1040 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, #0d1a30 0%, transparent 60%);
+}
+
+/* ── SCREENS ── */
+.screen { display: none; flex-direction: column; align-items: center; min-height: 100vh; padding: 32px 16px; gap: 24px; }
+.screen.active { display: flex; }
+
+/* Stars */
+.stars {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,0.8) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 55%, rgba(255,255,255,0.6) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 38% 8%, rgba(255,255,255,0.9) 0%,transparent 100%),
+    radial-gradient(1px 1px at 52% 72%, rgba(255,255,255,0.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 68% 28%, rgba(255,255,255,0.8) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 78% 60%, rgba(255,255,255,0.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 88% 18%, rgba(255,255,255,0.9) 0%,transparent 100%),
+    radial-gradient(1px 1px at 14% 82%, rgba(255,255,255,0.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 32% 92%, rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 58% 88%, rgba(255,255,255,0.8) 0%,transparent 100%),
+    radial-gradient(1px 1px at 82% 92%, rgba(255,255,255,0.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 4% 45%, rgba(255,255,255,0.7) 0%,transparent 100%),
+    radial-gradient(1px 1px at 46% 35%, rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 71% 65%, rgba(255,255,255,0.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 93% 48%, rgba(255,255,255,0.8) 0%,transparent 100%);
+}
+
+/* ── LANGUAGE SCREEN ── */
+#lang-screen {
+  justify-content: center;
+}
+.logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(3rem, 8vw, 5rem);
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(255,209,102,0.4);
+  letter-spacing: 3px;
+  position: relative;
+  z-index: 1;
+}
+.logo-sub { color: var(--text-dim); font-size: 1rem; text-align: center; position: relative; z-index: 1; }
+.lang-btns { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; margin-top: 16px; }
+.lang-btn {
+  background: var(--surface);
+  border: 2.5px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 20px 44px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.4rem;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all .18s;
+  display: flex; align-items: center; gap: 12px;
+}
+.lang-btn:hover { background: var(--accent); color: var(--bg); transform: translateY(-3px); }
+
+/* ── CLASS SCREEN ── */
+#class-screen { justify-content: center; gap: 20px; position: relative; z-index: 1; }
+.screen-title { font-family: 'Fredoka One', cursive; font-size: clamp(1.6rem, 4vw, 2.4rem); color: var(--accent); text-align: center; z-index: 1; }
+.class-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; max-width: 700px; width: 100%; z-index: 1; }
+.class-card {
+  background: var(--surface);
+  border: 2.5px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 20px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .18s;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.class-card:hover { border-color: var(--blue); transform: translateY(-3px); }
+.class-card.selected { border-color: var(--green); background: rgba(6,214,160,0.1); }
+.class-emoji { font-size: 2.5rem; }
+.class-label { font-family: 'Fredoka One', cursive; font-size: 1rem; }
+.class-range { font-size: 0.78rem; color: var(--text-dim); }
+
+/* ── CHAR SCREEN ── */
+#char-screen { gap: 20px; position: relative; z-index: 1; }
+.chars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; max-width: 750px; width: 100%; }
+.char-card {
+  background: var(--surface);
+  border: 2.5px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 24px 14px;
+  cursor: pointer;
+  transition: all .18s;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.char-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+.char-card.selected { border-color: var(--green); background: rgba(6,214,160,0.1); }
+.char-emoji { font-size: 3.5rem; line-height: 1; }
+.char-name { font-family: 'Fredoka One', cursive; font-size: 1.1rem; }
+.char-desc { font-size: 0.78rem; color: var(--text-dim); }
+
+/* ── BUTTONS ── */
+.btn {
+  background: linear-gradient(135deg, var(--accent), #e6a800);
+  color: #1a1200;
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 36px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all .18s;
+  box-shadow: 0 4px 16px rgba(255,209,102,0.25);
+  z-index: 1;
+  position: relative;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,209,102,0.4); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 2px solid var(--surface3);
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all .18s;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--text-dim); }
+
+/* ── MAP SCREEN ── */
+#map-screen { gap: 16px; }
+.map-header { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 680px; z-index: 1; position: relative; }
+.player-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border-radius: 50px; padding: 8px 18px;
+  font-weight: 700; font-size: 0.95rem;
+}
+.stars-chip {
+  margin-left: auto;
+  background: var(--surface); border-radius: 50px; padding: 8px 18px;
+  font-family: 'Fredoka One', cursive; color: var(--accent); font-size: 1rem;
+}
+.level-label {
+  font-family: 'Fredoka One', cursive; font-size: 0.85rem;
+  background: var(--surface2); color: var(--purple); border-radius: 50px;
+  padding: 6px 16px;
+}
+.mission-list { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 680px; z-index: 1; position: relative; }
+.mission-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border-radius: var(--radius);
+  padding: 16px 18px; border: 2.5px solid transparent;
+  cursor: pointer; transition: all .18s; position: relative;
+}
+.mission-row.unlocked:hover { border-color: var(--blue); transform: translateX(5px); }
+.mission-row.done { border-color: var(--green); }
+.mission-row.locked { opacity: 0.45; cursor: not-allowed; }
+.mission-row.current { border-color: var(--accent); box-shadow: 0 0 18px rgba(255,209,102,0.2); }
+.mission-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+}
+.unlocked .mission-icon, .current .mission-icon { background: var(--surface2); }
+.done .mission-icon { background: rgba(6,214,160,0.2); }
+.locked .mission-icon { background: var(--surface2); }
+.mission-info { flex: 1; }
+.m-title { font-family: 'Fredoka One', cursive; font-size: 1rem; margin-bottom: 3px; }
+.m-desc { font-size: 0.8rem; color: var(--text-dim); }
+.m-stars { font-size: 1rem; letter-spacing: 1px; }
+.m-tag {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 0.72rem; font-weight: 800;
+  border-radius: 8px; padding: 3px 9px;
+}
+.tag-drag { background: rgba(76,201,240,0.15); color: var(--blue); }
+.tag-seq  { background: rgba(179,136,255,0.15); color: var(--purple); }
+.tag-loop { background: rgba(6,214,160,0.15); color: var(--green); }
+.tag-cond { background: rgba(255,209,102,0.15); color: var(--accent); }
+.tag-algo { background: rgba(239,71,111,0.15); color: var(--red); }
+
+/* ── GAME SCREEN ── */
+#game-screen { gap: 14px; padding: 16px; }
+.game-header { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 960px; position: relative; z-index: 1; }
+.g-title { font-family: 'Fredoka One', cursive; font-size: 1.3rem; flex: 1; }
+.g-lives { display: flex; gap: 4px; font-size: 1.3rem; }
+.game-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 960px; position: relative; z-index: 1; }
+@media(max-width:640px) { .game-body { grid-template-columns: 1fr; } }
+
+/* World/Grid */
+.world-panel { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.world-label { font-family: 'Fredoka One', cursive; font-size: 0.9rem; color: var(--text-dim); }
+.grid-wrap { display: flex; justify-content: center; }
+.grid-table { border-collapse: collapse; }
+.grid-table td {
+  width: 52px; height: 52px; border: 1px solid var(--surface3);
+  font-size: 1.6rem; text-align: center; vertical-align: middle;
+  border-radius: 8px; background: var(--surface2); position: relative;
+  transition: background .15s;
+}
+.grid-table td.goal { background: rgba(255,209,102,0.15); }
+.grid-table td.wall { background: var(--surface3); }
+.grid-table td.path { background: rgba(76,201,240,0.1); }
+.grid-table td.visited { background: rgba(6,214,160,0.12); }
+.world-story { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; background: var(--surface2); border-radius: 12px; padding: 12px; }
+.world-story strong { color: var(--accent); }
+
+/* Code panel */
+.code-panel { background: var(--surface); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.panel-label { font-family: 'Fredoka One', cursive; font-size: 0.9rem; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+
+/* Toolbox */
+.toolbox { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; padding: 8px; background: var(--surface2); border-radius: 12px; }
+.block {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 10px;
+  font-family: 'Fredoka One', cursive; font-size: 0.95rem;
+  cursor: grab; user-select: none; transition: all .14s;
+  border: 2px solid transparent;
+}
+.block:hover { transform: scale(1.06); border-color: rgba(255,255,255,0.2); }
+.block:active { cursor: grabbing; transform: scale(0.97); }
+.block.b-move   { background: rgba(76,201,240,0.25); color: var(--blue); }
+.block.b-turn   { background: rgba(179,136,255,0.25); color: var(--purple); }
+.block.b-loop   { background: rgba(6,214,160,0.25); color: var(--green); }
+.block.b-cond   { background: rgba(255,209,102,0.25); color: var(--accent); }
+.block.b-action { background: rgba(239,71,111,0.25); color: var(--red); }
+
+/* Drop zone */
+.dropzone {
+  min-height: 120px; background: var(--surface2); border-radius: 12px;
+  padding: 10px; display: flex; flex-direction: column; gap: 6px;
+  border: 2px dashed var(--surface3); transition: border-color .15s;
+}
+.dropzone.drag-over { border-color: var(--accent); background: rgba(255,209,102,0.05); }
+.dropped-block {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 8px;
+  font-family: 'Fredoka One', cursive; font-size: 0.9rem;
+  cursor: pointer; position: relative;
+}
+.dropped-block .del-btn {
+  margin-left: auto; color: var(--red); background: none; border: none;
+  cursor: pointer; font-size: 1rem; opacity: 0.6;
+}
+.dropped-block .del-btn:hover { opacity: 1; }
+.drop-hint { color: var(--text-dim); font-size: 0.85rem; text-align: center; padding: 12px; }
+
+/* Run bar */
+.run-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-run {
+  background: linear-gradient(135deg, var(--green), #04b888);
+  color: #001a11; border: none; border-radius: 12px;
+  padding: 10px 24px; font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+  cursor: pointer; transition: all .18s; flex: 1;
+}
+.btn-run:hover { transform: translateY(-2px); }
+.btn-reset {
+  background: var(--surface2); color: var(--text-dim); border: 2px solid var(--surface3);
+  border-radius: 12px; padding: 10px 16px; font-family: 'Fredoka One', cursive; font-size: 1rem;
+  cursor: pointer; transition: all .18s;
+}
+.btn-reset:hover { color: var(--text); }
+.btn-hint {
+  background: rgba(255,209,102,0.1); color: var(--accent); border: 2px solid rgba(255,209,102,0.3);
+  border-radius: 12px; padding: 10px 16px; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem;
+  cursor: pointer; transition: all .18s;
+}
+.btn-hint:hover { background: rgba(255,209,102,0.2); }
+
+/* feedback */
+.feedback {
+  padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+  text-align: center; display: none;
+}
+.feedback.success { background: rgba(6,214,160,0.15); color: var(--green); border: 2px solid rgba(6,214,160,0.3); display: block; }
+.feedback.error   { background: rgba(239,71,111,0.15); color: var(--red); border: 2px solid rgba(239,71,111,0.3); display: block; }
+.feedback.info    { background: rgba(76,201,240,0.15); color: var(--blue); border: 2px solid rgba(76,201,240,0.3); display: block; }
+
+/* Output log */
+.output-log { background: var(--bg); border-radius: 10px; padding: 10px; font-size: 0.82rem; color: var(--text-dim); max-height: 80px; overflow-y: auto; font-family: monospace; }
+.output-log .log-ok { color: var(--green); }
+.output-log .log-err { color: var(--red); }
+
+/* ── CELEBRATION OVERLAY ── */
+#celebrate {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(10,8,25,0.85);
+  align-items: center; justify-content: center;
+}
+#celebrate.show { display: flex; }
+.celebrate-box {
+  background: var(--surface); border-radius: 24px; padding: 40px 48px;
+  text-align: center; max-width: 420px; width: 90%;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 60px rgba(255,209,102,0.2);
+}
+.celebrate-emoji { font-size: 4rem; margin-bottom: 12px; }
+.celebrate-title { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
+.celebrate-sub { color: var(--text-dim); margin-bottom: 24px; font-size: 1rem; }
+.celebrate-stars { font-size: 2rem; letter-spacing: 6px; margin-bottom: 24px; }
+.celebrate-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap { width: 100%; max-width: 680px; z-index: 1; position: relative; }
+.progress-bar-bg { background: var(--surface2); border-radius: 50px; height: 8px; overflow: hidden; }
+.progress-bar-fill { background: linear-gradient(90deg, var(--green), var(--blue)); height: 100%; border-radius: 50px; transition: width .5s; }
+.progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+
+/* ── INTRO OVERLAY ── */
+#intro-overlay {
+  display: none; position: fixed; inset: 0; z-index: 90;
+  background: rgba(10,8,25,0.9);
+  align-items: center; justify-content: center;
+}
+#intro-overlay.show { display: flex; }
+.intro-box {
+  background: var(--surface); border-radius: 24px; padding: 36px 40px;
+  max-width: 480px; width: 90%; border: 2px solid var(--blue);
+  box-shadow: 0 0 40px rgba(76,201,240,0.15);
+}
+.intro-box h2 { font-family: 'Fredoka One', cursive; font-size: 1.6rem; color: var(--blue); margin-bottom: 8px; }
+.intro-box .intro-concept { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 16px; }
+.intro-box p { color: var(--text-dim); font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; }
+.intro-box ul { padding-left: 20px; color: var(--text-dim); font-size: 0.9rem; line-height: 1.8; margin-bottom: 20px; }
+.intro-box ul li span { color: var(--text); font-weight: 700; }
+
+/* ── drag ghost ── */
+#drag-ghost {
+  position: fixed; pointer-events: none; z-index: 200;
+  opacity: 0.85; transform: rotate(3deg) scale(1.05);
+  display: none;
+}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<!-- ══════════ LANG ══════════ -->
+<div id="lang-screen" class="screen active">
+  <div class="logo">🚀 KodoQuest</div>
+  <div class="logo-sub">Μάθε προγραμματισμό παίζοντας! / Learn coding by playing!</div>
+  <div class="lang-btns">
+    <button class="lang-btn" onclick="setLang('el')"><span>🇬🇷</span> Ελληνικά</button>
+    <button class="lang-btn" onclick="setLang('en')"><span>🇬🇧</span> English</button>
+  </div>
+</div>
+
+<!-- ══════════ CLASS ══════════ -->
+<div id="class-screen" class="screen">
+  <div class="screen-title" id="class-title">Σε ποια τάξη είσαι;</div>
+  <div class="class-grid">
+    <div class="class-card" onclick="selectClass(1)">
+      <div class="class-emoji">🌱</div>
+      <div class="class-label" id="c1l">Α΄ Δημοτικού</div>
+      <div class="class-range">6–7 χρ.</div>
+    </div>
+    <div class="class-card" onclick="selectClass(2)">
+      <div class="class-emoji">🌿</div>
+      <div class="class-label" id="c2l">Β΄ Δημοτικού</div>
+      <div class="class-range">7–8 χρ.</div>
+    </div>
+    <div class="class-card" onclick="selectClass(3)">
+      <div class="class-emoji">🌳</div>
+      <div class="class-label" id="c3l">Γ΄ Δημοτικού</div>
+      <div class="class-range">8–9 χρ.</div>
+    </div>
+    <div class="class-card" onclick="selectClass(4)">
+      <div class="class-emoji">⭐</div>
+      <div class="class-label" id="c4l">Δ΄ Δημοτικού</div>
+      <div class="class-range">9–10 χρ.</div>
+    </div>
+    <div class="class-card" onclick="selectClass(5)">
+      <div class="class-emoji">🚀</div>
+      <div class="class-label" id="c5l">Ε΄ Δημοτικού</div>
+      <div class="class-range">10–11 χρ.</div>
+    </div>
+    <div class="class-card" onclick="selectClass(6)">
+      <div class="class-emoji">💡</div>
+      <div class="class-label" id="c6l">Στ΄ Δημοτικού</div>
+      <div class="class-range">11–12 χρ.</div>
+    </div>
+  </div>
+  <button class="btn" id="class-next-btn" disabled onclick="goToChar()">Επόμενο →</button>
+</div>
+
+<!-- ══════════ CHAR ══════════ -->
+<div id="char-screen" class="screen">
+  <div class="screen-title" id="char-title">Διάλεξε τον χαρακτήρα σου!</div>
+  <div class="chars-grid">
+    <div class="char-card" onclick="selectChar(0)">
+      <div class="char-emoji">🤖</div>
+      <div class="char-name" id="ch0n">Ρόμπι</div>
+      <div class="char-desc" id="ch0d">Φιλικό ρομπότ που αγαπά τον κώδικα</div>
+    </div>
+    <div class="char-card" onclick="selectChar(1)">
+      <div class="char-emoji">🦊</div>
+      <div class="char-name" id="ch1n">Φόξι</div>
+      <div class="char-desc" id="ch1d">Έξυπνη αλεπού με λύσεις παντού</div>
+    </div>
+    <div class="char-card" onclick="selectChar(2)">
+      <div class="char-emoji">🐱</div>
+      <div class="char-name" id="ch2n">Κίτι</div>
+      <div class="char-desc" id="ch2d">Γατάκι που λύνει γρίφους</div>
+    </div>
+    <div class="char-card" onclick="selectChar(3)">
+      <div class="char-emoji">🦸</div>
+      <div class="char-name" id="ch3n">Ήρωας</div>
+      <div class="char-desc" id="ch3d">Υπερήρωας του προγραμματισμού</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;z-index:1;position:relative;">
+    <button class="btn-secondary" onclick="showScreen('class-screen')">← Πίσω</button>
+    <button class="btn" id="char-next-btn" disabled onclick="goToMap()">Πάμε! 🚀</button>
+  </div>
+</div>
+
+<!-- ══════════ MAP ══════════ -->
+<div id="map-screen" class="screen">
+  <div class="map-header" style="position:relative;z-index:1;">
+    <div class="player-chip"><span id="map-char-emoji">🤖</span> <span id="map-char-name">Ρόμπι</span></div>
+    <div class="level-label" id="map-level">Α΄ Τάξη</div>
+    <div class="stars-chip">⭐ <span id="total-stars">0</span></div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-info"><span id="progress-label">0 / ? αποστολές</span><span id="progress-pct">0%</span></div>
+  </div>
+  <div class="screen-title" id="map-title" style="z-index:1;position:relative;">🗺️ Χάρτης Αποστολών</div>
+  <div class="mission-list" id="mission-list"></div>
+</div>
+
+<!-- ══════════ GAME ══════════ -->
+<div id="game-screen" class="screen">
+  <div class="game-header" style="position:relative;z-index:1;">
+    <button class="btn-secondary" onclick="goToMap()">← Χάρτης</button>
+    <div class="g-title" id="g-title">Αποστολή 1</div>
+    <div class="g-lives" id="g-lives">❤️❤️❤️</div>
+    <div style="font-family:'Fredoka One',cursive;color:var(--accent);font-size:1rem;">⭐ <span id="g-stars">0</span></div>
+  </div>
+  <div class="game-body">
+    <!-- LEFT: World -->
+    <div class="world-panel">
+      <div class="world-label" id="world-label">🌍 Κόσμος</div>
+      <div class="grid-wrap"><table class="grid-table" id="grid-table"></table></div>
+      <div class="world-story" id="world-story">Βοήθησε τον χαρακτήρα σου να φτάσει στον στόχο!</div>
+    </div>
+    <!-- RIGHT: Code -->
+    <div class="code-panel">
+      <div class="panel-label" id="toolbox-label">🧰 Εντολές</div>
+      <div class="toolbox" id="toolbox"></div>
+      <div class="panel-label" id="dropzone-label">📋 Πρόγραμμά μου</div>
+      <div class="dropzone" id="dropzone">
+        <div class="drop-hint" id="drop-hint">Σύρε εδώ τις εντολές!</div>
+      </div>
+      <div class="run-bar">
+        <button class="btn-run" id="run-btn" onclick="runProgram()">▶ Εκτέλεση</button>
+        <button class="btn-reset" onclick="resetLevel()">↺</button>
+        <button class="btn-hint" onclick="showHint()">💡 Hint</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="output-log" id="output-log" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CELEBRATE OVERLAY ══════════ -->
+<div id="celebrate">
+  <div class="celebrate-box">
+    <div class="celebrate-emoji" id="cel-emoji">🎉</div>
+    <div class="celebrate-title" id="cel-title">Μπράβο!</div>
+    <div class="celebrate-sub" id="cel-sub">Αποστολή ολοκληρώθηκε!</div>
+    <div class="celebrate-stars" id="cel-stars">⭐⭐⭐</div>
+    <div class="celebrate-btns">
+      <button class="btn-secondary" onclick="goToMap()">🗺️ <span id="cel-map">Χάρτης</span></button>
+      <button class="btn" id="cel-next-btn" onclick="nextMission()">Επόμενη →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ INTRO OVERLAY ══════════ -->
+<div id="intro-overlay">
+  <div class="intro-box">
+    <h2 id="intro-title">Νέα έννοια!</h2>
+    <div class="intro-concept" id="intro-concept"></div>
+    <p id="intro-text"></p>
+    <ul id="intro-list"></ul>
+    <button class="btn" onclick="closeIntro()">Ας παίξουμε! 🎮</button>
+  </div>
+</div>
+
+<!-- drag ghost -->
+<div id="drag-ghost"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let lang = 'el';
+let playerClass = 0; // 1-6
+let selectedChar = -1;
+let currentMission = 0;
+let missionStates = []; // {done, stars}
+let totalStars = 0;
+let lives = 3;
+let dragData = null;
+
+const chars = [
+  { emoji:'🤖', name:{el:'Ρόμπι',en:'Roby'}, desc:{el:'Φιλικό ρομπότ',en:'Friendly robot'} },
+  { emoji:'🦊', name:{el:'Φόξι',en:'Foxy'}, desc:{el:'Έξυπνη αλεπού',en:'Clever fox'} },
+  { emoji:'🐱', name:{el:'Κίτι',en:'Kitty'}, desc:{el:'Γατάκι-γρίφος',en:'Puzzle kitten'} },
+  { emoji:'🦸', name:{el:'Ήρωας',en:'Hero'}, desc:{el:'Υπερήρωας',en:'Superhero'} },
+];
+
+// ══════════════════════════════════════════════
+// TRANSLATIONS
+// ══════════════════════════════════════════════
+const T = {
+  el: {
+    classTitle:'Σε ποια τάξη είσαι;',
+    charTitle:'Διάλεξε τον χαρακτήρα σου!',
+    mapTitle:'🗺️ Χάρτης Αποστολών',
+    next:'Επόμενο →',
+    letsGo:'Πάμε! 🚀',
+    run:'▶ Εκτέλεση',
+    toolbox:'🧰 Εντολές',
+    myCode:'📋 Πρόγραμμά μου',
+    worldLbl:'🌍 Κόσμος',
+    dropHint:'Σύρε εδώ τις εντολές!',
+    bravo:'Μπράβο!',
+    missionDone:'Αποστολή ολοκληρώθηκε!',
+    mapBtn:'Χάρτης',
+    nextBtn:'Επόμενη →',
+    locked:'🔒 Κλειδωμένο',
+    classes:['Α΄ Δημοτικού','Β΄ Δημοτικού','Γ΄ Δημοτικού','Δ΄ Δημοτικού','Ε΄ Δημοτικού','Στ΄ Δημοτικού'],
+    hint:'💡 Hint',
+    hintMsg:'Σκέψου προσεκτικά τις κινήσεις!',
+    lives:'Ζωές',
+    reached:'Έφτασες στον στόχο! 🎯',
+    notReached:'Δεν έφτασες στον στόχο. Ξαναπρόσπαθε!',
+    wall:'Αδύνατη κίνηση — εκεί είναι τοίχος!',
+    outBounds:'Βγήκες εκτός περιοχής!',
+    tooMany:'Πολλές εντολές! Χρησιμοποίησε λιγότερες.',
+    introNew:'Νέα έννοια!',
+  },
+  en: {
+    classTitle:'What grade are you in?',
+    charTitle:'Choose your character!',
+    mapTitle:'🗺️ Mission Map',
+    next:'Next →',
+    letsGo:'Let\'s go! 🚀',
+    run:'▶ Run',
+    toolbox:'🧰 Toolbox',
+    myCode:'📋 My Program',
+    worldLbl:'🌍 World',
+    dropHint:'Drag commands here!',
+    bravo:'Well done!',
+    missionDone:'Mission complete!',
+    mapBtn:'Map',
+    nextBtn:'Next →',
+    locked:'🔒 Locked',
+    hint:'💡 Hint',
+    hintMsg:'Think carefully about your moves!',
+    lives:'Lives',
+    reached:'You reached the goal! 🎯',
+    notReached:'Didn\'t reach the goal. Try again!',
+    wall:'Can\'t go there — it\'s a wall!',
+      outBounds:'Out of bounds!',
+    tooMany:'Too many commands! Use fewer.',
+    introNew:'New concept!',
+    classes:['1st Grade','2nd Grade','3rd Grade','4th Grade','5th Grade','6th Grade'],
+  }
+};
+
+function t(key){ return (T[lang]||T['el'])[key] || key; }
+
+// ══════════════════════════════════════════════
+// MISSIONS DATABASE
+// Each mission: id, titleEl, titleEn, descEl, descEn,
+//   concept (drag/seq/loop/cond/algo), minClass, maxClass,
+//   grid (rows x cols, each cell: ' '=empty, 'W'=wall, 'G'=goal, 'C'=collectible),
+//   startPos {r,c}, startDir (0=up,1=right,2=down,3=left),
+//   storyEl, storyEn, hintEl, hintEn,
+//   availableBlocks: [{id, labelEl, labelEn, type, action}],
+//   maxBlocks, solution (array of block ids), introEl, introEn, introListEl, introListEn
+// ══════════════════════════════════════════════
+const MISSIONS = [
+  // ──── ΑΠΟΣΤΟΛΗ 1: Drag & Drop εισαγωγή ────
+  {
+    id:1,
+    titleEl:'Το Πρώτο Βήμα', titleEn:'First Step',
+    descEl:'Μάθε να σέρνεις εντολές', descEn:'Learn to drag commands',
+    concept:'drag', tag:'tag-drag', tagEl:'Drag & Drop', tagEn:'Drag & Drop',
+    minClass:1, maxClass:6,
+    storyEl:'Ο <strong>χαρακτήρας σου</strong> θέλει να πάει μπροστά 1 βήμα και να φτάσει στο ⭐!',
+    storyEn:'Your <strong>character</strong> wants to go forward 1 step and reach ⭐!',
+    hintEl:'Σύρε ΜΟΝΟ μία φορά το "Μπροστά".',
+    hintEn:'Drag "Forward" just once.',
+    introEl:'Drag & Drop σημαίνει να παίρνεις μια εντολή και να την τοποθετείς στο πρόγραμμά σου, σαν παζλ!',
+    introEn:'Drag & Drop means taking a command and placing it in your program, like a puzzle!',
+    introListEl:['Πάτα και κράτα μια εντολή', 'Σύρε την στο "Πρόγραμμά μου"', 'Πάτα Εκτέλεση!'],
+    introListEn:['Press and hold a command', 'Drag it to "My Program"', 'Press Run!'],
+    grid:[
+      [' ',' ','G'],
+      [' ',' ',' '],
+      [' ',' ',' '],
+    ],
+    startPos:{r:2,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+    ],
+    maxBlocks:5,
+    solution:['fwd','fwd'],
+    starsThresholds:[3,2,1],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 2: Απλή ακολουθία ────
+  {
+    id:2,
+    titleEl:'Αριστερά-Δεξιά', titleEn:'Left-Right',
+    descEl:'Συνδύασε κινήσεις', descEn:'Combine moves',
+    concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
+    minClass:1, maxClass:6,
+    storyEl:'Πρέπει να πας 2 βήματα μπροστά και μετά 1 δεξιά για να βρεις το ⭐!',
+    storyEn:'Go 2 steps forward then 1 step right to find ⭐!',
+    hintEl:'Πρώτα "Μπροστά" δύο φορές, μετά "Στρίψε Δεξιά" και "Μπροστά" άλλη μία.',
+    hintEn:'Forward twice, then Turn Right and Forward once.',
+    introEl:'Μια ακολουθία είναι σειρά από εντολές που εκτελούνται μία μία, στη σειρά!',
+    introEn:'A sequence is a series of commands that execute one by one, in order!',
+    introListEl:['Η σειρά των εντολών μετράει', 'Η 1η εντολή τρέχει πρώτη', 'Η 2η μετά, κ.ο.κ.'],
+    introListEn:['Order of commands matters', 'Command 1 runs first', 'Command 2 second, etc.'],
+    grid:[
+      [' ',' ',' '],
+      [' ',' ','G'],
+      [' ',' ',' '],
+    ],
+    startPos:{r:2,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+    ],
+    maxBlocks:6,
+    solution:['fwd','fwd','trR','fwd'],
+    starsThresholds:[4,5,6],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 3: Μπροστά + Δεξιά + Μπροστά ────
+  {
+    id:3,
+    titleEl:'Ο Λαβύρινθος', titleEn:'The Maze',
+    descEl:'Βρες τη διαδρομή μέσα από τοίχους', descEn:'Find the path through walls',
+    concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
+    minClass:2, maxClass:6,
+    storyEl:'Υπάρχουν τοίχοι στο δρόμο! Βρες τη σωστή διαδρομή για το ⭐.',
+    storyEn:'There are walls in the way! Find the right path to ⭐.',
+    hintEl:'Ακολούθησε τον ελεύθερο διάδρομο γύρω από τον τοίχο.',
+    hintEn:'Follow the free corridor around the wall.',
+    introEl:null,
+    grid:[
+      [' ','W',' ','G'],
+      [' ','W',' ',' '],
+      [' ',' ',' ',' '],
+    ],
+    startPos:{r:2,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+    ],
+    maxBlocks:10,
+    solution:['fwd','fwd','trR','fwd','fwd','trL','fwd','trL','fwd'],
+    starsThresholds:[6,8,10],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 4: Μπροστά 3 βήματα ────
+  {
+    id:4,
+    titleEl:'Μεγαλύτερα Βήματα', titleEn:'Bigger Steps',
+    descEl:'Χρησιμοποίησε βήματα 2 και 3', descEn:'Use step sizes 2 and 3',
+    concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
+    minClass:2, maxClass:6,
+    storyEl:'Τώρα έχεις εντολές για 2 και 3 βήματα. Χρησιμοποίησέ τες έξυπνα!',
+    storyEn:'Now you have 2-step and 3-step commands. Use them wisely!',
+    hintEl:'Μπροστά 3, Στρίψε, Μπροστά 2.',
+    hintEn:'Forward 3, Turn, Forward 2.',
+    introEl:null,
+    grid:[
+      [' ',' ',' ',' ',' '],
+      [' ',' ',' ','G',' '],
+      [' ',' ',' ',' ',' '],
+    ],
+    startPos:{r:2,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'fwd3',labelEl:'Μπροστά 3',labelEn:'Forward 3',type:'b-move',action:{type:'move',steps:3}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+    ],
+    maxBlocks:6,
+    solution:['fwd3','trR','fwd2'],
+    starsThresholds:[3,4,5],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 5: Επανάληψη (loop) ────
+  {
+    id:5,
+    titleEl:'Επανάληψε!', titleEn:'Repeat!',
+    descEl:'Χρησιμοποίησε loops', descEn:'Use loops',
+    concept:'loop', tag:'tag-loop', tagEl:'Βρόχος', tagEn:'Loop',
+    minClass:3, maxClass:6,
+    storyEl:'Αντί να γράφεις την ίδια εντολή πολλές φορές, χρησιμοποίησε Επανάληψη!',
+    storyEn:'Instead of writing the same command many times, use Repeat!',
+    hintEl:'Επανάλαβε "Μπροστά 1" τέσσερις φορές.',
+    hintEn:'Repeat "Forward 1" four times.',
+    introEl:'Ένας βρόχος (loop) επαναλαμβάνει μια εντολή πολλές φορές αυτόματα! Εξοικονομείς χρόνο και κώδικα.',
+    introEn:'A loop repeats a command many times automatically! It saves time and code.',
+    introListEl:['Επίλεξε τι επαναλαμβάνεις', 'Επίλεξε πόσες φορές', 'Ο υπολογιστής το κάνει αυτόματα!'],
+    introListEn:['Choose what to repeat', 'Choose how many times', 'Computer does it automatically!'],
+    grid:[
+      [' ',' ',' ',' ','G'],
+      [' ',' ',' ',' ',' '],
+    ],
+    startPos:{r:1,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
+      {id:'rep3',labelEl:'× 3',labelEn:'× 3',type:'b-loop',action:{type:'repeat',times:3}},
+      {id:'rep4',labelEl:'× 4',labelEn:'× 4',type:'b-loop',action:{type:'repeat',times:4}},
+    ],
+    maxBlocks:4,
+    solution:['rep4','fwd1'],
+    starsThresholds:[2,3,4],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 6: Loop + στροφή ────
+  {
+    id:6,
+    titleEl:'Ο Γύρος', titleEn:'The Loop',
+    descEl:'Loops με στροφές', descEn:'Loops with turns',
+    concept:'loop', tag:'tag-loop', tagEl:'Βρόχος', tagEn:'Loop',
+    minClass:3, maxClass:6,
+    storyEl:'Ο δρόμος έχει πολλές στροφές. Χρησιμοποίησε επαναλήψεις για να φτάσεις στο ⭐!',
+    storyEn:'The road has many turns. Use repetitions to reach ⭐!',
+    hintEl:'Κάνε loop: "Μπροστά 2, Στρίψε Δεξιά" × 2 φορές.',
+    hintEn:'Loop: "Forward 2, Turn Right" × 2 times.',
+    introEl:null,
+    grid:[
+      ['W','W','W','W','W'],
+      ['W',' ',' ',' ','W'],
+      ['W',' ','W','G','W'],
+      ['W',' ',' ',' ','W'],
+      ['W','W','W','W','W'],
+    ],
+    startPos:{r:3,c:1}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+      {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
+    ],
+    maxBlocks:8,
+    solution:['fwd2','trR','fwd1','trL','fwd1'],
+    starsThresholds:[4,6,8],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 7: Συνθήκη if ────
+  {
+    id:7,
+    titleEl:'Αν… Τότε…', titleEn:'If… Then…',
+    descEl:'Μάθε συνθήκες', descEn:'Learn conditions',
+    concept:'cond', tag:'tag-cond', tagEl:'Συνθήκη', tagEn:'Condition',
+    minClass:4, maxClass:6,
+    storyEl:'Το πρόγραμμα παίρνει αποφάσεις! Αν υπάρχει τοίχος, Στρίψε. Αλλιώς, Μπροστά!',
+    storyEn:'Programs make decisions! If wall, Turn. Otherwise, Forward!',
+    hintEl:'Χρησιμοποίησε "Αν τοίχος → Στρίψε Δεξιά" στα σωστά σημεία.',
+    hintEn:'Use "If wall → Turn Right" at the right places.',
+    introEl:'Μια συνθήκη (if) λέει στο πρόγραμμα τι να κάνει σε διαφορετικές καταστάσεις. Σαν να λέμε "αν βρέχει, πάρε ομπρέλα"!',
+    introEn:'A condition (if) tells the program what to do in different situations. Like saying "if it rains, take an umbrella"!',
+    introListEl:['Ελέγχουμε μια κατάσταση (π.χ. υπάρχει τοίχος;)', 'Αν ΝΑΙ → κάνουμε κάτι', 'Αν ΌΧΙ → κάνουμε κάτι άλλο'],
+    introListEn:['Check a condition (e.g. wall ahead?)', 'If YES → do something', 'If NO → do something else'],
+    grid:[
+      [' ',' ','W',' '],
+      [' ','W',' ','G'],
+      [' ',' ',' ',' '],
+    ],
+    startPos:{r:2,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+      {id:'if_wall_R',labelEl:'Αν τοίχος→Δεξιά',labelEn:'If wall→Right',type:'b-cond',action:{type:'if_wall',dir:'R'}},
+      {id:'if_wall_L',labelEl:'Αν τοίχος→Αριστερά',labelEn:'If wall→Left',type:'b-cond',action:{type:'if_wall',dir:'L'}},
+    ],
+    maxBlocks:8,
+    solution:['fwd1','trR','fwd1','fwd1','trL','fwd1','trR','fwd1'],
+    starsThresholds:[6,7,8],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 8: Συλλογή αντικειμένων ────
+  {
+    id:8,
+    titleEl:'Μάζεψε τα Αστέρια', titleEn:'Collect the Stars',
+    descEl:'Μάζεψε όλα τα αντικείμενα', descEn:'Collect all items',
+    concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
+    minClass:2, maxClass:6,
+    storyEl:'Μάζεψε και τα 3 💎 πριν φτάσεις στο ⭐. Η σειρά μετράει!',
+    storyEn:'Collect all 3 💎 before reaching ⭐. Order matters!',
+    hintEl:'Πήγαινε πρώτα στα διαμάντια με τη σειρά, μετά στο στόχο.',
+    hintEn:'Visit diamonds in order, then reach the goal.',
+    introEl:null,
+    grid:[
+      [' ','C',' ','C'],
+      [' ',' ',' ',' '],
+      ['C',' ',' ','G'],
+    ],
+    startPos:{r:2,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+    ],
+    maxBlocks:14,
+    solution:['trR','fwd1','fwd1','fwd1','trL','fwd1','fwd1','trR','fwd1','fwd1'],
+    starsThresholds:[8,11,14],
+    needsAllCollectibles: true,
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 9: Αλγόριθμος (Ε-ΣΤ) ────
+  {
+    id:9,
+    titleEl:'Ο Αλγόριθμος', titleEn:'The Algorithm',
+    descEl:'Σχεδίασε έναν αλγόριθμο', descEn:'Design an algorithm',
+    concept:'algo', tag:'tag-algo', tagEl:'Αλγόριθμος', tagEn:'Algorithm',
+    minClass:5, maxClass:6,
+    storyEl:'Ένας αλγόριθμος είναι ένα σύνολο από βήματα που λύνουν ένα πρόβλημα. Φτιάξε τον καλύτερο αλγόριθμο!',
+    storyEn:'An algorithm is a set of steps that solve a problem. Create the best algorithm!',
+    hintEl:'Χρησιμοποίησε loops και συνθήκες για να λύσεις τη διαδρομή αποτελεσματικά.',
+    hintEn:'Use loops and conditions to solve the route efficiently.',
+    introEl:'Αλγόριθμος = συγκεκριμένα βήματα που λύνουν ένα πρόβλημα. Κάθε πρόγραμμα είναι αλγόριθμος!',
+    introEn:'Algorithm = specific steps that solve a problem. Every program is an algorithm!',
+    introListEl:['Ορίζει ακριβώς τι πρέπει να γίνει', 'Έχει αρχή και τέλος', 'Δίνει πάντα αποτέλεσμα'],
+    introListEn:['Defines exactly what to do', 'Has a start and end', 'Always gives a result'],
+    grid:[
+      [' ',' ','W',' ','G'],
+      [' ','W',' ',' ',' '],
+      [' ',' ',' ','W',' '],
+      ['W',' ','W',' ',' '],
+      [' ',' ',' ',' ',' '],
+    ],
+    startPos:{r:4,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+      {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
+      {id:'if_wall_R',labelEl:'Αν τοίχος→Δεξιά',labelEn:'If wall→Right',type:'b-cond',action:{type:'if_wall',dir:'R'}},
+    ],
+    maxBlocks:14,
+    solution:['fwd1','fwd1','trR','fwd1','fwd1','trL','fwd1','trR','fwd1','fwd1'],
+    starsThresholds:[8,11,14],
+  },
+  // ──── ΑΠΟΣΤΟΛΗ 10: Μεγάλος Λαβύρινθος ────
+  {
+    id:10,
+    titleEl:'Ο Μεγάλος Λαβύρινθος', titleEn:'The Grand Maze',
+    descEl:'Η τελική πρόκληση!', descEn:'The final challenge!',
+    concept:'algo', tag:'tag-algo', tagEl:'Αλγόριθμος', tagEn:'Algorithm',
+    minClass:4, maxClass:6,
+    storyEl:'Χρησιμοποίησε ΟΛΑ όσα έμαθες για να κατακτήσεις τον μεγάλο λαβύρινθο!',
+    storyEn:'Use EVERYTHING you learned to conquer the grand maze!',
+    hintEl:'Σχεδίασε πρώτα τη διαδρομή στο μυαλό σου. Χρησιμοποίησε loops για επαναλαμβανόμενα μέρη.',
+    hintEn:'Plan the route in your head first. Use loops for repeating parts.',
+    introEl:null,
+    grid:[
+      [' ','W',' ',' ',' ','G'],
+      [' ','W',' ','W',' ','W'],
+      [' ',' ',' ','W',' ',' '],
+      ['W','W','W','W','W',' '],
+      [' ',' ',' ',' ',' ',' '],
+    ],
+    startPos:{r:4,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'fwd3',labelEl:'Μπροστά 3',labelEn:'Forward 3',type:'b-move',action:{type:'move',steps:3}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+      {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
+      {id:'rep3',labelEl:'× 3',labelEn:'× 3',type:'b-loop',action:{type:'repeat',times:3}},
+    ],
+    maxBlocks:16,
+    solution:['fwd3','trR','fwd3','fwd3','trL','fwd1','trL','fwd1','fwd1','trR','fwd1','trR','fwd1'],
+    starsThresholds:[10,13,16],
+  },
+];
+
+// ══════════════════════════════════════════════
+// FILTER MISSIONS BY CLASS
+// ══════════════════════════════════════════════
+function getMissionsForClass(cls) {
+  return MISSIONS.filter(m => cls >= m.minClass && cls <= m.maxClass);
+}
+
+// ══════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════
+// LANG
+// ══════════════════════════════════════════════
+function setLang(l) {
+  lang = l;
+  applyLang();
+  showScreen('class-screen');
+}
+function applyLang() {
+  document.getElementById('class-title').textContent = t('classTitle');
+  document.getElementById('char-title').textContent = t('charTitle');
+  document.getElementById('map-title').textContent = t('mapTitle');
+  document.getElementById('char-next-btn').textContent = t('letsGo');
+  document.getElementById('class-next-btn').textContent = t('next');
+  const cls = t('classes');
+  for(let i=0;i<6;i++) document.getElementById('c'+(i+1)+'l').textContent = cls[i];
+  chars.forEach((c,i) => {
+    document.getElementById('ch'+i+'n').textContent = c.name[lang];
+    document.getElementById('ch'+i+'d').textContent = c.desc[lang];
+  });
+}
+
+// ══════════════════════════════════════════════
+// CLASS SELECTION
+// ══════════════════════════════════════════════
+function selectClass(cls) {
+  playerClass = cls;
+  document.querySelectorAll('.class-card').forEach((c,i) => {
+    c.classList.toggle('selected', i===cls-1);
+  });
+  document.getElementById('class-next-btn').disabled = false;
+}
+function goToChar() { showScreen('char-screen'); }
+
+// ══════════════════════════════════════════════
+// CHAR SELECTION
+// ══════════════════════════════════════════════
+function selectChar(i) {
+  selectedChar = i;
+  document.querySelectorAll('.char-card').forEach((c,j) => c.classList.toggle('selected', i===j));
+  document.getElementById('char-next-btn').disabled = false;
+}
+function goToMap() {
+  if(selectedChar < 0) return;
+  // init mission states
+  const missions = getMissionsForClass(playerClass);
+  missionStates = missions.map(() => ({done:false, stars:0}));
+  totalStars = 0;
+  currentMission = 0;
+  buildMap();
+  showScreen('map-screen');
+}
+
+// ══════════════════════════════════════════════
+// MAP
+// ══════════════════════════════════════════════
+function buildMap() {
+  const ch = chars[selectedChar];
+  document.getElementById('map-char-emoji').textContent = ch.emoji;
+  document.getElementById('map-char-name').textContent = ch.name[lang];
+  document.getElementById('map-level').textContent = t('classes')[playerClass-1];
+  document.getElementById('total-stars').textContent = totalStars;
+  document.getElementById('map-title').textContent = t('mapTitle');
+
+  const missions = getMissionsForClass(playerClass);
+  const done = missionStates.filter(s=>s.done).length;
+  const pct = Math.round(done/missions.length*100);
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label').textContent = done + ' / ' + missions.length + (lang==='el'?' αποστολές':' missions');
+  document.getElementById('progress-pct').textContent = pct+'%';
+
+  const list = document.getElementById('mission-list');
+  list.innerHTML = '';
+  missions.forEach((m, idx) => {
+    const state = missionStates[idx];
+    const isFirst = idx === 0;
+    const prevDone = idx === 0 || missionStates[idx-1].done;
+    const cls = state.done ? 'done' : (prevDone ? (idx===currentMission&&!state.done?'current':'unlocked') : 'locked');
+    const starsStr = state.done ? '⭐'.repeat(state.stars) + '☆'.repeat(3-state.stars) : '☆☆☆';
+    const tag = `<div class="m-tag ${m.tag}">${lang==='el'?m.tagEl:m.tagEn}</div>`;
+    const row = document.createElement('div');
+    row.className = 'mission-row '+cls;
+    row.innerHTML = `
+      <div class="mission-icon">${state.done?'✅':prevDone?'🔓':'🔒'}</div>
+      <div class="mission-info">
+        <div class="m-title">${idx+1}. ${lang==='el'?m.titleEl:m.titleEn}</div>
+        <div class="m-desc">${lang==='el'?m.descEl:m.descEn}</div>
+        <div class="m-stars">${starsStr}</div>
+      </div>
+      ${tag}
+    `;
+    if(prevDone || state.done) {
+      row.onclick = () => startMission(idx);
+    }
+    list.appendChild(row);
+  });
+}
+
+// ══════════════════════════════════════════════
+// START MISSION
+// ══════════════════════════════════════════════
+let activeMission = null;
+let playerPos = {r:0,c:0};
+let playerDir = 1;
+let program = [];
+let collectibles = [];
+let collectedCount = 0;
+let originalGrid = [];
+
+function startMission(idx) {
+  const missions = getMissionsForClass(playerClass);
+  const m = missions[idx];
+  currentMission = idx;
+  activeMission = m;
+  lives = 3;
+  program = [];
+
+  // Grid setup
+  originalGrid = m.grid.map(row => [...row]);
+  collectibles = [];
+  m.grid.forEach((row,r) => row.forEach((cell,c) => { if(cell==='C') collectibles.push({r,c}); }));
+  collectedCount = 0;
+
+  // Show intro if first time and has intro
+  if(!missionStates[idx].done && m.introEl) {
+    showIntro(m);
+  }
+
+  renderGame(m);
+  showScreen('game-screen');
+}
+
+function showIntro(m) {
+  document.getElementById('intro-title').textContent = t('introNew');
+  document.getElementById('intro-concept').textContent = lang==='el'?m.tagEl:m.tagEn;
+  document.getElementById('intro-text').textContent = lang==='el'?m.introEl:m.introEn;
+  const ul = document.getElementById('intro-list');
+  ul.innerHTML = '';
+  const items = lang==='el'?m.introListEl:m.introListEn;
+  if(items) items.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span>${item}</span>`; ul.appendChild(li); });
+  document.getElementById('intro-overlay').classList.add('show');
+}
+function closeIntro() { document.getElementById('intro-overlay').classList.remove('show'); }
+
+function renderGame(m) {
+  document.getElementById('g-title').textContent = (lang==='el'?m.titleEl:m.titleEn);
+  document.getElementById('world-label').textContent = t('worldLbl');
+  document.getElementById('toolbox-label').textContent = t('toolbox');
+  document.getElementById('dropzone-label').textContent = t('myCode');
+  document.getElementById('run-btn').textContent = t('run');
+  document.getElementById('btn-hint') && (document.getElementById('btn-hint').textContent = t('hint'));
+  document.getElementById('world-story').innerHTML = lang==='el'?m.storyEl:m.storyEn;
+  updateLives();
+  buildGrid();
+  buildToolbox(m);
+  renderProgram();
+  hideFeedback();
+  document.getElementById('output-log').style.display='none';
+  document.getElementById('output-log').innerHTML='';
+}
+
+function updateLives() {
+  document.getElementById('g-lives').innerHTML = '❤️'.repeat(lives) + '🖤'.repeat(3-lives);
+}
+
+// ── GRID ──
+function buildGrid() {
+  const m = activeMission;
+  const grid = m.grid;
+  playerPos = {...m.startPos};
+  playerDir = m.startDir;
+  collectibles = [];
+  grid.forEach((row,r) => row.forEach((cell,c) => { if(cell==='C') collectibles.push({r,c,collected:false}); }));
+  collectedCount = 0;
+  renderGrid();
+}
+
+function renderGrid() {
+  const m = activeMission;
+  const grid = m.grid;
+  const tbl = document.getElementById('grid-table');
+  tbl.innerHTML = '';
+  for(let r=0;r<grid.length;r++) {
+    const tr = document.createElement('tr');
+    for(let c=0;c<grid[r].length;c++) {
+      const td = document.createElement('td');
+      const cell = grid[r][c];
+      if(cell==='W') { td.classList.add('wall'); td.textContent='🧱'; }
+      else if(cell==='G') { td.classList.add('goal'); td.textContent='⭐'; }
+      else {
+        const col = collectibles.find(col=>col.r===r&&col.c===c);
+        if(col) { td.textContent = col.collected?'':' 💎'; if(col.collected) td.style.opacity='0.3'; }
+        else td.textContent='';
+      }
+      if(r===playerPos.r && c===playerPos.c) {
+        const dirs = ['⬆️','➡️','⬇️','⬅️'];
+        td.textContent = chars[selectedChar].emoji;
+        td.style.background='rgba(255,209,102,0.2)';
+      }
+      tr.appendChild(td);
+    }
+    tbl.appendChild(tr);
+  }
+}
+
+// ── TOOLBOX ──
+function buildToolbox(m) {
+  const toolbox = document.getElementById('toolbox');
+  toolbox.innerHTML = '';
+  m.availableBlocks.forEach(block => {
+    const div = document.createElement('div');
+    div.className = 'block '+block.type;
+    div.textContent = (lang==='el'?block.labelEl:block.labelEn);
+    div.setAttribute('data-block-id', block.id);
+    div.draggable = true;
+    div.addEventListener('dragstart', e => onDragStart(e, block));
+    div.addEventListener('touchstart', e => onTouchStart(e, block, div), {passive:true});
+    toolbox.appendChild(div);
+  });
+}
+
+// ── PROGRAM (drop zone) ──
+function renderProgram() {
+  const dz = document.getElementById('dropzone');
+  const hint = document.getElementById('drop-hint');
+  if(program.length === 0) {
+    dz.innerHTML = '';
+    const h = document.createElement('div');
+    h.className='drop-hint'; h.id='drop-hint';
+    h.textContent = t('dropHint');
+    dz.appendChild(h);
+    return;
+  }
+  dz.innerHTML = '';
+  program.forEach((blockId, i) => {
+    const block = activeMission.availableBlocks.find(b=>b.id===blockId);
+    if(!block) return;
+    const div = document.createElement('div');
+    div.className = 'dropped-block '+block.type;
+    div.innerHTML = `<span>${lang==='el'?block.labelEl:block.labelEn}</span>
+      <button class="del-btn" onclick="removeBlock(${i})">✕</button>`;
+    dz.appendChild(div);
+  });
+}
+
+function removeBlock(i) {
+  program.splice(i,1);
+  renderProgram();
+  hideFeedback();
+}
+
+// ══════════════════════════════════════════════
+// DRAG & DROP (mouse)
+// ══════════════════════════════════════════════
+function onDragStart(e, block) {
+  dragData = block;
+  e.dataTransfer.effectAllowed = 'copy';
+}
+
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  if(dragData) { addBlock(dragData.id); dragData=null; }
+});
+
+// ══════════════════════════════════════════════
+// TOUCH DRAG
+// ══════════════════════════════════════════════
+let touchBlock = null;
+let ghost = document.getElementById('drag-ghost');
+
+function onTouchStart(e, block, el) {
+  touchBlock = block;
+  ghost.textContent = lang==='el'?block.labelEl:block.labelEn;
+  ghost.className = 'block '+block.type;
+  ghost.style.display = 'block';
+  moveTouchGhost(e.touches[0]);
+}
+document.addEventListener('touchmove', e => {
+  if(!touchBlock) return;
+  moveTouchGhost(e.touches[0]);
+  e.preventDefault();
+},{passive:false});
+document.addEventListener('touchend', e => {
+  if(!touchBlock) return;
+  const touch = e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if(el && (el.id==='dropzone'||el.closest('#dropzone'))) {
+    addBlock(touchBlock.id);
+  }
+  ghost.style.display='none';
+  touchBlock = null;
+});
+function moveTouchGhost(touch) {
+  ghost.style.left = (touch.clientX-40)+'px';
+  ghost.style.top  = (touch.clientY-20)+'px';
+}
+
+function addBlock(id) {
+  const m = activeMission;
+  if(program.length >= m.maxBlocks) { showFeedback(t('tooMany'),'error'); return; }
+  program.push(id);
+  renderProgram();
+  hideFeedback();
+}
+
+// ══════════════════════════════════════════════
+// EXECUTION ENGINE
+// ══════════════════════════════════════════════
+const DIRS = [{r:-1,c:0},{r:0,c:1},{r:1,c:0},{r:0,c:-1}]; // up,right,down,left
+
+function runProgram() {
+  const m = activeMission;
+  const grid = m.grid;
+  let pos = {...m.startPos};
+  let dir = m.startDir;
+  let log = [];
+  let collected = 0;
+
+  // reset collectibles
+  collectibles.forEach(col=>col.collected=false);
+  collectedCount = 0;
+
+  // expand program (handle loops)
+  let expanded = expandProgram(program, m);
+  if(expanded === null) { showFeedback('⚠️ Σφάλμα στο πρόγραμμα!','error'); return; }
+
+  let stepIdx = 0;
+  function step() {
+    if(stepIdx >= expanded.length) {
+      // check goal
+      const cell = grid[pos.r][pos.c];
+      const needsAll = m.needsAllCollectibles;
+      const allCollected = !needsAll || collectibles.every(c=>c.collected);
+      if(cell==='G' && allCollected) {
+        // SUCCESS
+        const stars = calcStars(program.length, m.starsThresholds);
+        const idx = getMissionsForClass(playerClass).indexOf(m);
+        if(!missionStates[idx].done || stars > missionStates[idx].stars) {
+          missionStates[idx] = {done:true, stars};
+          totalStars = missionStates.reduce((a,s)=>a+s.stars,0);
+        }
+        setTimeout(()=>showCelebration(stars), 300);
+      } else {
+        lives--;
+        updateLives();
+        const reason = cell!=='G' ? t('notReached') : '💎 '+( lang==='el'?'Μάζεψε πρώτα όλα τα διαμάντια!':'Collect all diamonds first!');
+        showFeedback('❌ '+reason,'error');
+        if(lives<=0) setTimeout(()=>showFeedback('😢 '+(lang==='el'?'Τελείωσαν οι ζωές! Ξεκίνα πάλι.':'Out of lives! Start again.'), 'error'),400);
+      }
+      return;
+    }
+
+    const action = expanded[stepIdx];
+    stepIdx++;
+
+    if(action.type==='move') {
+      for(let s=0;s<action.steps;s++) {
+        const nr = pos.r + DIRS[dir].r;
+        const nc = pos.c + DIRS[dir].c;
+        if(nr<0||nr>=grid.length||nc<0||nc>=grid[0].length) {
+          showFeedback('❌ '+t('outBounds'),'error'); lives--; updateLives(); return;
+        }
+        if(grid[nr][nc]==='W') {
+          showFeedback('❌ '+t('wall'),'error'); lives--; updateLives();
+          renderGridAt(pos,dir); return;
+        }
+        pos = {r:nr,c:nc};
+        // check collectible
+        const col = collectibles.find(col=>col.r===pos.r&&col.c===pos.c&&!col.collected);
+        if(col) { col.collected=true; collected++; }
+      }
+    } else if(action.type==='turn') {
+      dir = (dir + (action.dir==='R'?1:-1)+4)%4;
+    } else if(action.type==='if_wall') {
+      const nr = pos.r + DIRS[dir].r;
+      const nc = pos.c + DIRS[dir].c;
+      const wallAhead = nr<0||nr>=grid.length||nc<0||nc>=grid[0].length||grid[nr][nc]==='W';
+      if(wallAhead) dir = (dir + (action.dir==='R'?1:-1)+4)%4;
+    }
+
+    renderGridAt(pos,dir);
+    setTimeout(step, 320);
+  }
+
+  renderGridAt(pos,dir);
+  setTimeout(step, 100);
+}
+
+function renderGridAt(pos,dir) {
+  const m = activeMission;
+  const grid = m.grid;
+  const tbl = document.getElementById('grid-table');
+  const rows = tbl.querySelectorAll('tr');
+  rows.forEach((tr,r) => {
+    tr.querySelectorAll('td').forEach((td,c) => {
+      td.style.background='';
+      const cell = grid[r][c];
+      if(cell==='W') { td.textContent='🧱'; }
+      else if(cell==='G') { td.textContent='⭐'; td.style.background='rgba(255,209,102,0.15)'; }
+      else {
+        const col = collectibles.find(col=>col.r===r&&col.c===c);
+        if(col) { td.textContent = col.collected?'':' 💎'; td.style.opacity = col.collected?'0.3':'1'; }
+        else td.textContent='';
+      }
+      if(r===pos.r && c===pos.c) {
+        td.textContent = chars[selectedChar].emoji;
+        td.style.background='rgba(255,209,102,0.25)';
+      }
+    });
+  });
+}
+
+function expandProgram(prog, m) {
+  let result = [];
+  let i = 0;
+  while(i < prog.length) {
+    const blockId = prog[i];
+    const block = m.availableBlocks.find(b=>b.id===blockId);
+    if(!block) { i++; continue; }
+    const action = block.action;
+    if(action.type==='repeat') {
+      // next block(s) get repeated
+      const times = action.times;
+      const nextBlocks = prog.slice(i+1, i+2); // repeat next 1 block
+      if(nextBlocks.length===0) { i++; continue; }
+      for(let t=0;t<times;t++) {
+        const nb = m.availableBlocks.find(b=>b.id===nextBlocks[0]);
+        if(nb) result.push(nb.action);
+      }
+      i+=2;
+    } else {
+      result.push(action);
+      i++;
+    }
+  }
+  return result;
+}
+
+function calcStars(used, thresholds) {
+  if(used <= thresholds[0]) return 3;
+  if(used <= thresholds[1]) return 2;
+  return 1;
+}
+
+function resetLevel() {
+  program = [];
+  buildGrid();
+  renderProgram();
+  hideFeedback();
+  lives = 3;
+  updateLives();
+  document.getElementById('output-log').style.display='none';
+}
+
+function showHint() {
+  const m = activeMission;
+  const hint = lang==='el'?m.hintEl:m.hintEn;
+  showFeedback('💡 '+hint,'info');
+}
+
+function showFeedback(msg,type) {
+  const fb = document.getElementById('feedback');
+  fb.textContent = msg;
+  fb.className='feedback '+type;
+}
+function hideFeedback() {
+  const fb = document.getElementById('feedback');
+  fb.className='feedback';
+}
+
+// ══════════════════════════════════════════════
+// CELEBRATION
+// ══════════════════════════════════════════════
+function showCelebration(stars) {
+  document.getElementById('cel-emoji').textContent = stars===3?'🏆':stars===2?'🎉':'👍';
+  document.getElementById('cel-title').textContent = t('bravo');
+  document.getElementById('cel-sub').textContent = t('missionDone');
+  document.getElementById('cel-stars').textContent = '⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  document.getElementById('cel-map').textContent = t('mapBtn');
+  document.getElementById('cel-next-btn').textContent = t('nextBtn');
+
+  const missions = getMissionsForClass(playerClass);
+  const hasNext = currentMission < missions.length-1;
+  document.getElementById('cel-next-btn').style.display = hasNext?'':'none';
+
+  document.getElementById('celebrate').classList.add('show');
+}
+
+function nextMission() {
+  document.getElementById('celebrate').classList.remove('show');
+  const missions = getMissionsForClass(playerClass);
+  if(currentMission < missions.length-1) {
+    currentMission++;
+    startMission(currentMission);
+  } else {
+    goToMap();
+  }
+}
+
+function goToMap() {
+  document.getElementById('celebrate').classList.remove('show');
+  buildMap();
+  showScreen('map-screen');
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+applyLang();
+</script>
+</body>
+</html>
