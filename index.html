@@ -438,7 +438,7 @@ body {
   </div>
   <div style="display:flex;gap:12px;z-index:1;position:relative;">
     <button class="btn-secondary" onclick="showScreen('class-screen')">← Πίσω</button>
-    <button class="btn" id="char-next-btn" disabled onclick="goToMap()">Πάμε! 🚀</button>
+    <button class="btn" id="char-next-btn" disabled onclick="initAndGoToMap()">Πάμε! 🚀</button>
   </div>
 </div>
 
@@ -976,9 +976,8 @@ function selectChar(i) {
   document.querySelectorAll('.char-card').forEach((c,j) => c.classList.toggle('selected', i===j));
   document.getElementById('char-next-btn').disabled = false;
 }
-function goToMap() {
+function initAndGoToMap() {
   if(selectedChar < 0) return;
-  // init mission states
   const missions = getMissionsForClass(playerClass);
   missionStates = missions.map(() => ({done:false, stars:0}));
   totalStars = 0;
@@ -1442,6 +1441,7 @@ function goToMap() {
   buildMap();
   showScreen('map-screen');
 }
+
 
 // ══════════════════════════════════════════════
 // INIT
