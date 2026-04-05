@@ -611,53 +611,113 @@ function t(key){ return (T[lang]||T['el'])[key] || key; }
 //   availableBlocks: [{id, labelEl, labelEn, type, action}],
 //   maxBlocks, solution (array of block ids), introEl, introEn, introListEl, introListEn
 // ══════════════════════════════════════════════
+/*
+  COORDINATE SYSTEM:
+  - Grid rows go top(0) to bottom
+  - Grid cols go left(0) to right
+  - Directions: 0=up(r-1), 1=right(c+1), 2=down(r+1), 3=left(c-1)
+  - startDir:1 means facing RIGHT
+
+  HOW TO READ SOLUTIONS:
+  Starting at startPos facing startDir:
+  - 'fwd' / 'fwd1' = move 1 step in current direction
+  - 'trR' = rotate direction: (dir+1)%4  e.g. right→down, up→right
+  - 'trL' = rotate direction: (dir+3)%4  e.g. right→up, down→right
+*/
 const MISSIONS = [
-  // ──── ΑΠΟΣΤΟΛΗ 1: Drag & Drop εισαγωγή ────
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 1 — Drag & Drop εισαγωγή
+  // Grid: 1 row × 4 cols.  Player at (0,0) facing RIGHT. Goal at (0,3).
+  // Solution: fwd fwd fwd  (3 forward steps along the single row)
+  // ──────────────────────────────────────────────────────────────────
   {
     id:1,
     titleEl:'Το Πρώτο Βήμα', titleEn:'First Step',
     descEl:'Μάθε να σέρνεις εντολές', descEn:'Learn to drag commands',
     concept:'drag', tag:'tag-drag', tagEl:'Drag & Drop', tagEn:'Drag & Drop',
     minClass:1, maxClass:6,
-    storyEl:'Ο <strong>χαρακτήρας σου</strong> θέλει να πάει μπροστά 1 βήμα και να φτάσει στο ⭐!',
-    storyEn:'Your <strong>character</strong> wants to go forward 1 step and reach ⭐!',
-    hintEl:'Σύρε ΜΟΝΟ μία φορά το "Μπροστά".',
-    hintEn:'Drag "Forward" just once.',
+    storyEl:'Σύρε το "<strong>Μπροστά 1</strong>" τρεις φορές για να φτάσεις στο ⭐!',
+    storyEn:'Drag "<strong>Forward 1</strong>" three times to reach ⭐!',
+    hintEl:'Σύρε "Μπροστά 1" τρεις φορές στο πρόγραμμά σου.',
+    hintEn:'Drag "Forward 1" three times into your program.',
     introEl:'Drag & Drop σημαίνει να παίρνεις μια εντολή και να την τοποθετείς στο πρόγραμμά σου, σαν παζλ!',
     introEn:'Drag & Drop means taking a command and placing it in your program, like a puzzle!',
     introListEl:['Πάτα και κράτα μια εντολή', 'Σύρε την στο "Πρόγραμμά μου"', 'Πάτα Εκτέλεση!'],
     introListEn:['Press and hold a command', 'Drag it to "My Program"', 'Press Run!'],
     grid:[
-      [' ',' ','G'],
-      [' ',' ',' '],
-      [' ',' ',' '],
+      [' ',' ',' ','G'],
     ],
-    startPos:{r:2,c:0}, startDir:1,
+    startPos:{r:0,c:0}, startDir:1,
     availableBlocks:[
       {id:'fwd',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
     ],
     maxBlocks:5,
-    solution:['fwd','fwd'],
-    starsThresholds:[3,2,1],
+    solution:['fwd','fwd','fwd'],
+    starsThresholds:[3,4,5],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 2: Απλή ακολουθία ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 2 — Πρώτη Στροφή
+  // Grid: 2 rows × 3 cols.
+  //   Row 0: [' ',' ','G']
+  //   Row 1: [' ',' ',' ']
+  // Player at (1,0) facing RIGHT. Goal at (0,2).
+  // Path: right→(1,1) right→(1,2) trL(now facing UP) up→(0,2)=GOAL
+  // Solution: fwd fwd trL fwd
+  // ──────────────────────────────────────────────────────────────────
   {
     id:2,
-    titleEl:'Αριστερά-Δεξιά', titleEn:'Left-Right',
-    descEl:'Συνδύασε κινήσεις', descEn:'Combine moves',
+    titleEl:'Η Πρώτη Στροφή', titleEn:'First Turn',
+    descEl:'Μάθε να στρίβεις!', descEn:'Learn to turn!',
     concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
     minClass:1, maxClass:6,
-    storyEl:'Πρέπει να πας 2 βήματα μπροστά και μετά 1 δεξιά για να βρεις το ⭐!',
-    storyEn:'Go 2 steps forward then 1 step right to find ⭐!',
-    hintEl:'Πρώτα "Μπροστά" δύο φορές, μετά "Στρίψε Δεξιά" και "Μπροστά" άλλη μία.',
-    hintEn:'Forward twice, then Turn Right and Forward once.',
+    storyEl:'Πήγαινε μπροστά και μετά <strong>στρίψε αριστερά</strong> για να φτάσεις στο ⭐!',
+    storyEn:'Go forward then <strong>turn left</strong> to reach ⭐!',
+    hintEl:'"Μπροστά" δύο φορές, μετά "Στρίψε Αριστερά", μετά "Μπροστά" άλλη μία.',
+    hintEn:'"Forward" twice, then "Turn Left", then "Forward" once more.',
     introEl:'Μια ακολουθία είναι σειρά από εντολές που εκτελούνται μία μία, στη σειρά!',
     introEn:'A sequence is a series of commands that execute one by one, in order!',
     introListEl:['Η σειρά των εντολών μετράει', 'Η 1η εντολή τρέχει πρώτη', 'Η 2η μετά, κ.ο.κ.'],
     introListEn:['Order of commands matters', 'Command 1 runs first', 'Command 2 second, etc.'],
     grid:[
-      [' ',' ',' '],
       [' ',' ','G'],
+      [' ',' ',' '],
+    ],
+    startPos:{r:1,c:0}, startDir:1,
+    availableBlocks:[
+      {id:'fwd',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
+      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
+      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
+    ],
+    maxBlocks:6,
+    solution:['fwd','fwd','trL','fwd'],
+    starsThresholds:[4,5,6],
+  },
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 3 — Ζιγκ-Ζαγκ
+  // Grid: 3 rows × 3 cols.
+  //   Row 0: [' ',' ','G']
+  //   Row 1: [' ','W',' ']
+  //   Row 2: [' ',' ',' ']
+  // Player at (2,0) facing RIGHT. Goal at (0,2).
+  // Path: right→(2,1) right→(2,2) trL(UP) up→(1,2) up→(0,2)=GOAL
+  // Solution: fwd fwd trL fwd fwd
+  // ──────────────────────────────────────────────────────────────────
+  {
+    id:3,
+    titleEl:'Ζιγκ-Ζαγκ', titleEn:'Zig-Zag',
+    descEl:'Γύρνα τον τοίχο!', descEn:'Go around the wall!',
+    concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
+    minClass:1, maxClass:6,
+    storyEl:'Υπάρχει ένας τοίχος στη μέση. Βρες το δρόμο γύρω του για να φτάσεις στο ⭐!',
+    storyEn:'There\'s a wall in the middle. Find the path around it to reach ⭐!',
+    hintEl:'Πήγαινε δεξιά μέχρι τέλος, στρίψε αριστερά, και ανέβα στο ⭐.',
+    hintEn:'Go right to the edge, turn left, then go up to ⭐.',
+    introEl:null,
+    grid:[
+      [' ',' ','G'],
+      [' ','W',' '],
       [' ',' ',' '],
     ],
     startPos:{r:2,c:0}, startDir:1,
@@ -666,21 +726,31 @@ const MISSIONS = [
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
     ],
-    maxBlocks:6,
-    solution:['fwd','fwd','trR','fwd'],
-    starsThresholds:[4,5,6],
+    maxBlocks:8,
+    solution:['fwd','fwd','trL','fwd','fwd'],
+    starsThresholds:[5,6,8],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 3: Μπροστά + Δεξιά + Μπροστά ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 4 — Ο Λαβύρινθος
+  // Grid: 3 rows × 4 cols.
+  //   Row 0: [' ','W',' ','G']
+  //   Row 1: [' ','W',' ',' ']
+  //   Row 2: [' ',' ',' ',' ']
+  // Player at (2,0) facing RIGHT. Goal at (0,3).
+  // Path: (2,0)→right(2,1)→right(2,2)→right(2,3)→trL(UP)→up(1,3)→up(0,3)=GOAL
+  // Solution: fwd fwd fwd trL fwd fwd
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:3,
+    id:4,
     titleEl:'Ο Λαβύρινθος', titleEn:'The Maze',
     descEl:'Βρες τη διαδρομή μέσα από τοίχους', descEn:'Find the path through walls',
     concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
     minClass:2, maxClass:6,
-    storyEl:'Υπάρχουν τοίχοι στο δρόμο! Βρες τη σωστή διαδρομή για το ⭐.',
-    storyEn:'There are walls in the way! Find the right path to ⭐.',
-    hintEl:'Ακολούθησε τον ελεύθερο διάδρομο γύρω από τον τοίχο.',
-    hintEn:'Follow the free corridor around the wall.',
+    storyEl:'Ο τοίχος κόβει τον δρόμο! Βρες τη σωστή διαδρομή για το ⭐.',
+    storyEn:'The wall blocks the way! Find the right path to ⭐.',
+    hintEl:'Πήγαινε τρία βήματα δεξιά, μετά στρίψε αριστερά και πήγαινε δύο βήματα πάνω.',
+    hintEn:'Go three steps right, then turn left and go two steps up.',
     introEl:null,
     grid:[
       [' ','W',' ','G'],
@@ -693,21 +763,31 @@ const MISSIONS = [
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
     ],
-    maxBlocks:10,
-    solution:['fwd','fwd','trR','fwd','fwd','trL','fwd','trL','fwd'],
-    starsThresholds:[6,8,10],
+    maxBlocks:8,
+    solution:['fwd','fwd','fwd','trL','fwd','fwd'],
+    starsThresholds:[6,7,8],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 4: Μπροστά 3 βήματα ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 5 — Μεγαλύτερα Βήματα
+  // Grid: 3 rows × 5 cols.
+  //   Row 0: [' ',' ',' ',' ',' ']
+  //   Row 1: [' ',' ',' ','G',' ']
+  //   Row 2: [' ',' ',' ',' ',' ']
+  // Player at (2,0) facing RIGHT. Goal at (1,3).
+  // Path: right×3 → (2,3) → trL(UP) → up×1 → (1,3)=GOAL
+  // Solution: fwd3 trL fwd
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:4,
+    id:5,
     titleEl:'Μεγαλύτερα Βήματα', titleEn:'Bigger Steps',
     descEl:'Χρησιμοποίησε βήματα 2 και 3', descEn:'Use step sizes 2 and 3',
     concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
     minClass:2, maxClass:6,
     storyEl:'Τώρα έχεις εντολές για 2 και 3 βήματα. Χρησιμοποίησέ τες έξυπνα!',
     storyEn:'Now you have 2-step and 3-step commands. Use them wisely!',
-    hintEl:'Μπροστά 3, Στρίψε, Μπροστά 2.',
-    hintEn:'Forward 3, Turn, Forward 2.',
+    hintEl:'"Μπροστά 3", μετά "Στρίψε Αριστερά", μετά "Μπροστά 1".',
+    hintEn:'"Forward 3", then "Turn Left", then "Forward 1".',
     introEl:null,
     grid:[
       [' ',' ',' ',' ',' '],
@@ -722,30 +802,41 @@ const MISSIONS = [
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
     ],
-    maxBlocks:6,
-    solution:['fwd3','trR','fwd2'],
+    maxBlocks:5,
+    solution:['fwd3','trL','fwd1'],
     starsThresholds:[3,4,5],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 5: Επανάληψη (loop) ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 6 — Επανάληψη (loop)
+  // Grid: 2 rows × 5 cols.
+  //   Row 0: ['G',' ',' ',' ',' ']
+  //   Row 1: [' ',' ',' ',' ',' ']
+  // Player at (1,0) facing RIGHT. Goal at (0,0).
+  // We want: trL(face UP) then fwd×1 → (0,0)=GOAL
+  // But let's make it more interesting for loops:
+  // Player at (1,4) facing LEFT. Goal at (1,0).
+  // Solution: rep4 fwd1  (repeat fwd 4 times → moves left 4 = (1,0)=GOAL)
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:5,
+    id:6,
     titleEl:'Επανάληψε!', titleEn:'Repeat!',
     descEl:'Χρησιμοποίησε loops', descEn:'Use loops',
     concept:'loop', tag:'tag-loop', tagEl:'Βρόχος', tagEn:'Loop',
     minClass:3, maxClass:6,
-    storyEl:'Αντί να γράφεις την ίδια εντολή πολλές φορές, χρησιμοποίησε Επανάληψη!',
-    storyEn:'Instead of writing the same command many times, use Repeat!',
-    hintEl:'Επανάλαβε "Μπροστά 1" τέσσερις φορές.',
-    hintEn:'Repeat "Forward 1" four times.',
+    storyEl:'Αντί να γράφεις "Μπροστά" πολλές φορές, χρησιμοποίησε <strong>Επανάληψη</strong>!',
+    storyEn:'Instead of writing "Forward" many times, use <strong>Repeat</strong>!',
+    hintEl:'Βάλε "× 4" και μετά "Μπροστά 1" — θα εκτελεστεί 4 φορές!',
+    hintEn:'Put "× 4" then "Forward 1" — it will run 4 times!',
     introEl:'Ένας βρόχος (loop) επαναλαμβάνει μια εντολή πολλές φορές αυτόματα! Εξοικονομείς χρόνο και κώδικα.',
     introEn:'A loop repeats a command many times automatically! It saves time and code.',
-    introListEl:['Επίλεξε τι επαναλαμβάνεις', 'Επίλεξε πόσες φορές', 'Ο υπολογιστής το κάνει αυτόματα!'],
-    introListEn:['Choose what to repeat', 'Choose how many times', 'Computer does it automatically!'],
+    introListEl:['Βάλε πρώτα τον αριθμό επαναλήψεων (π.χ. × 4)', 'Μετά βάλε την εντολή που θες να επαναληφθεί', 'Πάτα Εκτέλεση — τρέχει αυτόματα!'],
+    introListEn:['Put the repeat count first (e.g. × 4)', 'Then put the command to repeat', 'Press Run — it runs automatically!'],
     grid:[
-      [' ',' ',' ',' ','G'],
       [' ',' ',' ',' ',' '],
+      ['G',' ',' ',' ',' '],
     ],
-    startPos:{r:1,c:0}, startDir:1,
+    startPos:{r:1,c:4}, startDir:3,
     availableBlocks:[
       {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
       {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
@@ -756,55 +847,92 @@ const MISSIONS = [
     solution:['rep4','fwd1'],
     starsThresholds:[2,3,4],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 6: Loop + στροφή ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 7 — Loop + Στροφή
+  // Grid: 4 rows × 4 cols.
+  //   Row 0: [' ',' ',' ','G']
+  //   Row 1: [' ','W','W',' ']
+  //   Row 2: [' ','W',' ',' ']
+  //   Row 3: [' ',' ',' ',' ']
+  // Player at (3,0) facing RIGHT. Goal at (0,3).
+  // Path: right(3,1) right(3,2) right(3,3) trL(UP) up(2,3) up(1,3) up(0,3)=GOAL
+  // Solution: fwd3 trL fwd3
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:6,
-    titleEl:'Ο Γύρος', titleEn:'The Loop',
+    id:7,
+    titleEl:'Ο Γύρος', titleEn:'The Loop Path',
     descEl:'Loops με στροφές', descEn:'Loops with turns',
     concept:'loop', tag:'tag-loop', tagEl:'Βρόχος', tagEn:'Loop',
     minClass:3, maxClass:6,
-    storyEl:'Ο δρόμος έχει πολλές στροφές. Χρησιμοποίησε επαναλήψεις για να φτάσεις στο ⭐!',
-    storyEn:'The road has many turns. Use repetitions to reach ⭐!',
-    hintEl:'Κάνε loop: "Μπροστά 2, Στρίψε Δεξιά" × 2 φορές.',
-    hintEn:'Loop: "Forward 2, Turn Right" × 2 times.',
+    storyEl:'Χρησιμοποίησε βήματα και στροφές για να πλοηγηθείς στον λαβύρινθο!',
+    storyEn:'Use steps and turns to navigate the maze!',
+    hintEl:'"Μπροστά 3", "Στρίψε Αριστερά", "Μπροστά 3".',
+    hintEn:'"Forward 3", "Turn Left", "Forward 3".',
     introEl:null,
     grid:[
-      ['W','W','W','W','W'],
-      ['W',' ',' ',' ','W'],
-      ['W',' ','W','G','W'],
-      ['W',' ',' ',' ','W'],
-      ['W','W','W','W','W'],
+      [' ',' ',' ','G'],
+      [' ','W','W',' '],
+      [' ','W',' ',' '],
+      [' ',' ',' ',' '],
     ],
-    startPos:{r:3,c:1}, startDir:1,
+    startPos:{r:3,c:0}, startDir:1,
     availableBlocks:[
       {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
       {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'fwd3',labelEl:'Μπροστά 3',labelEn:'Forward 3',type:'b-move',action:{type:'move',steps:3}},
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
       {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
+      {id:'rep3',labelEl:'× 3',labelEn:'× 3',type:'b-loop',action:{type:'repeat',times:3}},
     ],
     maxBlocks:8,
-    solution:['fwd2','trR','fwd1','trL','fwd1'],
-    starsThresholds:[4,6,8],
+    solution:['fwd3','trL','fwd3'],
+    starsThresholds:[3,5,8],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 7: Συνθήκη if ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 8 — Συνθήκη if
+  // Grid: 3 rows × 4 cols.
+  //   Row 0: [' ',' ','W','G']
+  //   Row 1: [' ',' ',' ',' ']
+  //   Row 2: [' ','W',' ',' ']
+  // Player at (2,0) facing RIGHT. Goal at (0,3).
+  // Path: (2,0)→trL(UP)→up(1,0)→up(0,0)→trR(RIGHT)→right(0,1)→right... blocked (0,2)=W
+  //   → better: (2,0)→right(2,1)... blocked W
+  //   → better: (2,0)→trL(UP)→(1,0)→(0,0)→trR(R)→(0,1)→if_wall_R(wall at 0,2)→trR(DOWN? no)
+  // Let's simplify: Player at (0,0) facing RIGHT. Goal at (0,3).
+  //   Row 0: [' ',' ','W','G']
+  //   Row 1: [' ',' ',' ',' ']
+  //   Row 2: [' ',' ',' ',' ']
+  // (0,0)→right(0,1)→if_wall(wall at 0,2 → trR=DOWN)→down(1,1)... too complex.
+  // SIMPLE version: straight corridor with one block, use if_wall to go around.
+  //   Row 0: [' ',' ',' ','G']
+  //   Row 1: [' ','W',' ',' ']
+  //   Row 2: [' ',' ',' ',' ']
+  // Player (2,0) RIGHT. Goal (0,3).
+  // Path: right(2,1) right(2,2) right(2,3) trL(UP) up(1,3) up(0,3)=GOAL
+  // Solution: fwd fwd fwd trL fwd fwd
+  // But to use if_wall: approach (2,1) which has wall above →
+  // Actually keep it simple and correct for if_wall intro:
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:7,
+    id:8,
     titleEl:'Αν… Τότε…', titleEn:'If… Then…',
     descEl:'Μάθε συνθήκες', descEn:'Learn conditions',
     concept:'cond', tag:'tag-cond', tagEl:'Συνθήκη', tagEn:'Condition',
     minClass:4, maxClass:6,
-    storyEl:'Το πρόγραμμα παίρνει αποφάσεις! Αν υπάρχει τοίχος, Στρίψε. Αλλιώς, Μπροστά!',
-    storyEn:'Programs make decisions! If wall, Turn. Otherwise, Forward!',
-    hintEl:'Χρησιμοποίησε "Αν τοίχος → Στρίψε Δεξιά" στα σωστά σημεία.',
-    hintEn:'Use "If wall → Turn Right" at the right places.',
+    storyEl:'Το πρόγραμμα παίρνει αποφάσεις! Βάλε "Αν τοίχος → Στρίψε" για να γυρνάς αυτόματα.',
+    storyEn:'Programs make decisions! Use "If wall → Turn" to turn automatically.',
+    hintEl:'Βάλε "Μπροστά 1" επαναλαμβανόμενα και "Αν τοίχος → Αριστερά" πριν κάθε εμπόδιο.',
+    hintEn:'Add "Forward 1" repeatedly and "If wall → Left" before each obstacle.',
     introEl:'Μια συνθήκη (if) λέει στο πρόγραμμα τι να κάνει σε διαφορετικές καταστάσεις. Σαν να λέμε "αν βρέχει, πάρε ομπρέλα"!',
     introEn:'A condition (if) tells the program what to do in different situations. Like saying "if it rains, take an umbrella"!',
-    introListEl:['Ελέγχουμε μια κατάσταση (π.χ. υπάρχει τοίχος;)', 'Αν ΝΑΙ → κάνουμε κάτι', 'Αν ΌΧΙ → κάνουμε κάτι άλλο'],
-    introListEn:['Check a condition (e.g. wall ahead?)', 'If YES → do something', 'If NO → do something else'],
+    introListEl:['Ελέγχουμε: υπάρχει τοίχος μπροστά;', 'Αν ΝΑΙ → στρίψε', 'Αν ΌΧΙ → συνέχισε μπροστά'],
+    introListEn:['Check: is there a wall ahead?', 'If YES → turn', 'If NO → keep going'],
     grid:[
-      [' ',' ','W',' '],
-      [' ','W',' ','G'],
+      [' ',' ',' ','G'],
+      [' ','W',' ',' '],
       [' ',' ',' ',' '],
     ],
     startPos:{r:2,c:0}, startDir:1,
@@ -812,60 +940,93 @@ const MISSIONS = [
       {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
-      {id:'if_wall_R',labelEl:'Αν τοίχος→Δεξιά',labelEn:'If wall→Right',type:'b-cond',action:{type:'if_wall',dir:'R'}},
       {id:'if_wall_L',labelEl:'Αν τοίχος→Αριστερά',labelEn:'If wall→Left',type:'b-cond',action:{type:'if_wall',dir:'L'}},
     ],
-    maxBlocks:8,
-    solution:['fwd1','trR','fwd1','fwd1','trL','fwd1','trR','fwd1'],
-    starsThresholds:[6,7,8],
+    maxBlocks:10,
+    solution:['fwd1','fwd1','fwd1','trL','fwd1','fwd1'],
+    starsThresholds:[6,8,10],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 8: Συλλογή αντικειμένων ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 9 — Συλλογή αντικειμένων
+  // Grid: 3 rows × 4 cols.
+  //   Row 0: [' ','C',' ','G']
+  //   Row 1: [' ',' ',' ',' ']
+  //   Row 2: ['C',' ','C',' ']
+  // Player at (2,0) facing RIGHT. Goal (0,3). Must collect all 3 💎 first.
+  // But collectible at (2,0) = player start — collect immediately at start? No, only on move.
+  // Revised: player starts at (1,0).
+  //   Row 0: [' ','C',' ','G']
+  //   Row 1: [' ',' ',' ',' ']
+  //   Row 2: ['C',' ','C',' ']
+  // Player at (1,0) RIGHT. 
+  // Path to collect all: down(2,0)C → right(2,1) → right(2,2)C → trL(UP) → up(1,2) → up(0,2) → trL(LEFT? no trR=RIGHT)
+  // Hmm: after trL from RIGHT we face UP. But (2,2)→trL(from right)=UP then up(1,2) up(0,2) trR(RIGHT) right(0,3)=G. Miss (0,1)C.
+  // Simpler layout - all collectibles on one path:
+  //   Row 0: ['C','C','C','G']   (all in top row)
+  //   Row 1: [' ',' ',' ',' ']
+  // Player at (1,0) RIGHT.
+  // Path: trL(UP) up(0,0)C trR(RIGHT) right(0,1)C right(0,2)C right(0,3)G ✓
+  // Solution: trL fwd trR fwd fwd fwd
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:8,
-    titleEl:'Μάζεψε τα Αστέρια', titleEn:'Collect the Stars',
+    id:9,
+    titleEl:'Μάζεψε τα Διαμάντια', titleEn:'Collect the Diamonds',
     descEl:'Μάζεψε όλα τα αντικείμενα', descEn:'Collect all items',
     concept:'seq', tag:'tag-seq', tagEl:'Ακολουθία', tagEn:'Sequence',
     minClass:2, maxClass:6,
-    storyEl:'Μάζεψε και τα 3 💎 πριν φτάσεις στο ⭐. Η σειρά μετράει!',
-    storyEn:'Collect all 3 💎 before reaching ⭐. Order matters!',
-    hintEl:'Πήγαινε πρώτα στα διαμάντια με τη σειρά, μετά στο στόχο.',
-    hintEn:'Visit diamonds in order, then reach the goal.',
+    storyEl:'Μάζεψε και τα 3 💎 <strong>πριν</strong> φτάσεις στο ⭐. Η σειρά μετράει!',
+    storyEn:'Collect all 3 💎 <strong>before</strong> reaching ⭐. Order matters!',
+    hintEl:'Στρίψε πάνω, μάζεψε το πρώτο 💎, στρίψε δεξιά και μάζεψε τα υπόλοιπα.',
+    hintEn:'Turn up, collect the first 💎, turn right and collect the rest.',
     introEl:null,
     grid:[
-      [' ','C',' ','C'],
+      ['C','C','C','G'],
       [' ',' ',' ',' '],
-      ['C',' ',' ','G'],
     ],
-    startPos:{r:2,c:0}, startDir:1,
+    startPos:{r:1,c:0}, startDir:1,
     availableBlocks:[
       {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
       {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
+      {id:'fwd3',labelEl:'Μπροστά 3',labelEn:'Forward 3',type:'b-move',action:{type:'move',steps:3}},
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
     ],
-    maxBlocks:14,
-    solution:['trR','fwd1','fwd1','fwd1','trL','fwd1','fwd1','trR','fwd1','fwd1'],
-    starsThresholds:[8,11,14],
+    maxBlocks:8,
+    solution:['trL','fwd1','trR','fwd3'],
+    starsThresholds:[4,6,8],
     needsAllCollectibles: true,
   },
-  // ──── ΑΠΟΣΤΟΛΗ 9: Αλγόριθμος (Ε-ΣΤ) ────
+
+  // ──────────────────────────────────────────────────────────────────
+  // ΑΠΟΣΤΟΛΗ 10 — Αλγόριθμος (Ε-ΣΤ)
+  // Grid: 5 rows × 5 cols.
+  //   Row 0: [' ','W',' ',' ','G']
+  //   Row 1: [' ','W',' ','W',' ']
+  //   Row 2: [' ',' ',' ','W',' ']
+  //   Row 3: ['W',' ','W',' ',' ']
+  //   Row 4: [' ',' ',' ',' ',' ']
+  // Player at (4,0) RIGHT. Goal (0,4).
+  // Path: right(4,1) right(4,2) right(4,3) right(4,4) trL(UP) up(3,4) up(2,4) up(1,4) up(0,4)=GOAL
+  // Solution: fwd4? No, use fwd1 ×4 or fwd2+fwd2 or rep4+fwd1 then trL then rep4+fwd1
+  // ──────────────────────────────────────────────────────────────────
   {
-    id:9,
-    titleEl:'Ο Αλγόριθμος', titleEn:'The Algorithm',
-    descEl:'Σχεδίασε έναν αλγόριθμο', descEn:'Design an algorithm',
+    id:10,
+    titleEl:'Ο Μεγάλος Λαβύρινθος', titleEn:'The Grand Maze',
+    descEl:'Η τελική πρόκληση!', descEn:'The final challenge!',
     concept:'algo', tag:'tag-algo', tagEl:'Αλγόριθμος', tagEn:'Algorithm',
-    minClass:5, maxClass:6,
-    storyEl:'Ένας αλγόριθμος είναι ένα σύνολο από βήματα που λύνουν ένα πρόβλημα. Φτιάξε τον καλύτερο αλγόριθμο!',
-    storyEn:'An algorithm is a set of steps that solve a problem. Create the best algorithm!',
-    hintEl:'Χρησιμοποίησε loops και συνθήκες για να λύσεις τη διαδρομή αποτελεσματικά.',
-    hintEn:'Use loops and conditions to solve the route efficiently.',
+    minClass:4, maxClass:6,
+    storyEl:'Χρησιμοποίησε ΟΛΑ όσα έμαθες! Loops, στροφές, βήματα — για να κατακτήσεις τον μεγάλο λαβύρινθο!',
+    storyEn:'Use EVERYTHING you learned! Loops, turns, steps — to conquer the grand maze!',
+    hintEl:'Πήγαινε δεξιά μέχρι τέλος, μετά πάνω μέχρι τέλος. Χρησιμοποίησε loops!',
+    hintEn:'Go right to the end, then up to the end. Use loops!',
     introEl:'Αλγόριθμος = συγκεκριμένα βήματα που λύνουν ένα πρόβλημα. Κάθε πρόγραμμα είναι αλγόριθμος!',
     introEn:'Algorithm = specific steps that solve a problem. Every program is an algorithm!',
-    introListEl:['Ορίζει ακριβώς τι πρέπει να γίνει', 'Έχει αρχή και τέλος', 'Δίνει πάντα αποτέλεσμα'],
-    introListEn:['Defines exactly what to do', 'Has a start and end', 'Always gives a result'],
+    introListEl:['Σχεδίασε πρώτα τη διαδρομή', 'Βρες μοτίβα που επαναλαμβάνονται', 'Χρησιμοποίησε loops για αποδοτικό κώδικα'],
+    introListEn:['Plan the route first', 'Find repeating patterns', 'Use loops for efficient code'],
     grid:[
-      [' ',' ','W',' ','G'],
-      [' ','W',' ',' ',' '],
+      [' ','W',' ',' ','G'],
+      [' ','W',' ','W',' '],
       [' ',' ',' ','W',' '],
       ['W',' ','W',' ',' '],
       [' ',' ',' ',' ',' '],
@@ -877,45 +1038,13 @@ const MISSIONS = [
       {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
       {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
       {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
-      {id:'if_wall_R',labelEl:'Αν τοίχος→Δεξιά',labelEn:'If wall→Right',type:'b-cond',action:{type:'if_wall',dir:'R'}},
+      {id:'rep4',labelEl:'× 4',labelEn:'× 4',type:'b-loop',action:{type:'repeat',times:4}},
     ],
-    maxBlocks:14,
-    solution:['fwd1','fwd1','trR','fwd1','fwd1','trL','fwd1','trR','fwd1','fwd1'],
-    starsThresholds:[8,11,14],
+    maxBlocks:12,
+    solution:['fwd2','fwd2','trL','fwd2','fwd2'],
+    starsThresholds:[5,8,12],
   },
-  // ──── ΑΠΟΣΤΟΛΗ 10: Μεγάλος Λαβύρινθος ────
-  {
-    id:10,
-    titleEl:'Ο Μεγάλος Λαβύρινθος', titleEn:'The Grand Maze',
-    descEl:'Η τελική πρόκληση!', descEn:'The final challenge!',
-    concept:'algo', tag:'tag-algo', tagEl:'Αλγόριθμος', tagEn:'Algorithm',
-    minClass:4, maxClass:6,
-    storyEl:'Χρησιμοποίησε ΟΛΑ όσα έμαθες για να κατακτήσεις τον μεγάλο λαβύρινθο!',
-    storyEn:'Use EVERYTHING you learned to conquer the grand maze!',
-    hintEl:'Σχεδίασε πρώτα τη διαδρομή στο μυαλό σου. Χρησιμοποίησε loops για επαναλαμβανόμενα μέρη.',
-    hintEn:'Plan the route in your head first. Use loops for repeating parts.',
-    introEl:null,
-    grid:[
-      [' ','W',' ',' ',' ','G'],
-      [' ','W',' ','W',' ','W'],
-      [' ',' ',' ','W',' ',' '],
-      ['W','W','W','W','W',' '],
-      [' ',' ',' ',' ',' ',' '],
-    ],
-    startPos:{r:4,c:0}, startDir:1,
-    availableBlocks:[
-      {id:'fwd1',labelEl:'Μπροστά 1',labelEn:'Forward 1',type:'b-move',action:{type:'move',steps:1}},
-      {id:'fwd2',labelEl:'Μπροστά 2',labelEn:'Forward 2',type:'b-move',action:{type:'move',steps:2}},
-      {id:'fwd3',labelEl:'Μπροστά 3',labelEn:'Forward 3',type:'b-move',action:{type:'move',steps:3}},
-      {id:'trR',labelEl:'Στρίψε Δεξιά',labelEn:'Turn Right',type:'b-turn',action:{type:'turn',dir:'R'}},
-      {id:'trL',labelEl:'Στρίψε Αριστερά',labelEn:'Turn Left',type:'b-turn',action:{type:'turn',dir:'L'}},
-      {id:'rep2',labelEl:'× 2',labelEn:'× 2',type:'b-loop',action:{type:'repeat',times:2}},
-      {id:'rep3',labelEl:'× 3',labelEn:'× 3',type:'b-loop',action:{type:'repeat',times:3}},
-    ],
-    maxBlocks:16,
-    solution:['fwd3','trR','fwd3','fwd3','trL','fwd1','trL','fwd1','fwd1','trR','fwd1','trR','fwd1'],
-    starsThresholds:[10,13,16],
-  },
+
 ];
 
 // ══════════════════════════════════════════════
